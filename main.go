@@ -5,12 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-)
-
-const (
-	reset = "\x1b[0m"
-	green = "\x1b[32m"
-	cyan  = "\x1b[36m"
+	s "tony/internal/style"
 )
 
 const (
@@ -41,13 +36,10 @@ func run() error {
 		return fmt.Errorf("unknown command: %s", arg)
 	}
 
-	fmt.Println(color(green, ">") + " " + color(cyan, command))
+	fmt.Print(s.Color(s.Green, "> "))
+	fmt.Println(s.Color(s.Cyan, command))
 
 	return execute(command)
-}
-
-func color(code, text string) string {
-	return code + text + reset
 }
 
 func loadCommands(path string) (map[string]string, error) {
