@@ -11,13 +11,51 @@ Instead of typing long commands like:
 
 ```sh
 docker build -t my-app .
+vite build
+go test ./...
 ```
 
-or documentation building, testing, linting, or running the dev server.
+you can define short aliases in `Tonyfile.json` and run them with `tony`.
 
-Need to create a `Tonyfile.json` file first, then you can define short aliases and run them with `tony`.
+## Install from GitHub Releases
 
-## Example `Tonyfile.json`
+1. Download the archive for your platform from the [releases page](https://github.com/Pekhov14/tony/releases).
+2. Extract it:
+
+```sh
+tar -xzf tony_<version>_<platform>.tar.gz
+```
+
+3. Move the binary to a directory in your `PATH`, for example:
+
+```sh
+sudo mv tony /usr/local/bin/tony
+```
+
+Then you can run:
+
+```sh
+tony <command>
+```
+
+### macOS note
+
+On macOS, the binary may be blocked on first launch because it is not code-signed yet.
+If that happens, remove the quarantine attribute and try again:
+
+```sh
+xattr -d com.apple.quarantine /usr/local/bin/tony
+```
+
+## Usage
+
+`tony` looks for `Tonyfile.json` in the current working directory.
+
+```sh
+tony <command>
+```
+
+Example `Tonyfile.json`:
 
 ```json
 {
@@ -27,12 +65,6 @@ Need to create a `Tonyfile.json` file first, then you can define short aliases a
   "lint": "golangci-lint run",
   "dev": "docker compose up"
 }
-```
-
-## Usage
-
-```sh
-tony <command>
 ```
 
 Then run:
@@ -45,20 +77,10 @@ tony test
 
 ## Run locally
 
+If you built the binary yourself and it is still in the current directory:
+
 ```sh
 ./tony <command>
-```
-
-Optional: make it available globally
-Move the binary to a directory in your `PATH`, for example:
-
-```sh
-sudo mv tony /usr/local/bin/tony
-```
-Then you can run:
-
-```sh
-tony <command>
 ```
 
 ## Output
@@ -74,7 +96,6 @@ vite v7.0.0 building for production...
 
 The command itself is highlighted, while the actual command output is printed as-is.
 
-
 ## How it works
 
 1. `tony` reads `Tonyfile.json`
@@ -86,14 +107,15 @@ The command itself is highlighted, while the actual command output is printed as
 
 - `Tonyfile.json` must exist in the current working directory
 - commands are executed through `sh -c`
+- the current release builds target macOS and Linux
 - the config format is currently just `map[string]string`
-
-## License
-
-MIT
 
 ## Build from source
 
 ```sh
 go build -o tony
 ```
+
+## License
+
+MIT
