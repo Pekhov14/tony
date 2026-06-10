@@ -11,48 +11,64 @@ const (
 	reset = "\x1b[0m"
 	green = "\x1b[32m"
 	cyan  = "\x1b[36m"
+)
 
+const (
 	tonyfile = "Tonyfile.json"
 )
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	if len(os.Args) < 2 {
+		return fmt.Errorf("usage: tony <command>")
+	}
+
+	arg := os.Args[1]
+
+	commands, err := loadCommands(tonyfile)
+	if err != nil {
+		return err
+	}
+
+	command, ok := commands[arg]
+	if !ok {
+		return fmt.Errorf("unknown command: %s", arg)
+	}
+
+	fmt.Println(color(green, ">") + " " + color(cyan, command))
+
+	return execute(command)
+}
 
 func color(code, text string) string {
 	return code + text + reset
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("usage: tony <command>")
-		os.Exit(1)
-	}
-
-	arg := os.Args[1]
-
-	file, err := os.ReadFile(tonyfile)
+func loadCommands(path string) (map[string]string, error) {
+	file, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	var commands map[string]string
-	if err = json.Unmarshal(file, &commands); err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
+	if err := json.Unmarshal(file, &commands); err != nil {
+		return nil, err
 	}
 
-	command, ok := commands[arg]
-	if !ok {
-		fmt.Println("Unknown command:", arg)
-		os.Exit(1)
-	}
+	return commands, nil
+}
 
-
-	fmt.Println(color(green, ">") + " " + color(cyan, command))
-
+func execute(command string) error {
 	result, err := exec.Command("sh", "-c", command).CombinedOutput()
-
 	fmt.Print(string(result))
-
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
+	return nil
 }
