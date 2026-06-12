@@ -1,6 +1,8 @@
 # tony
 
-![tony](tony.webp)
+<p align="center">
+<img src="tony.webp" alt="tony" width="720">
+</p>
 
 `tony` is a small CLI tool inspired by `make` and similar task runners.
 It reads commands from `Tonyfile.json` and runs them by alias.
