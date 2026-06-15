@@ -5,27 +5,28 @@ use std::process::Command;
 use colored::Colorize;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = std::env::args().collect::<Vec<String>>();
-
-    if args.len() < 2 {
-        // TODO: create help output and version
-        eprintln!("Usage: {} <command>", args[0]);
-        std::process::exit(1);
-    }
-
-    let command = &args[1];
+    let command = match std::env::args().nth(1) {
+        Some(arg) => arg,
+        None => {
+            eprintln!("Usage: tony <command>");
+            std::process::exit(1);
+        }
+    };
 
     let file = File::open("tonyfile.json")?;
     let reader = BufReader::new(file);
-
     let commands: HashMap<String, String> = serde_json::from_reader(reader)?;
 
-    if !commands.contains_key(command) {
-        eprintln!("Command not found: '{}'", command);
-        std::process::exit(1);
-    }
+    let command_to_run = match commands.get(&command) {
+        Some(cmd) => cmd,
+        None => {
+            eprintln!("Command not found: '{}'", command);
+            std::process::exit(1);
+        }
+    };
 
-    println!("{} {}", ">".green(), commands[command].blue().bold());
+    println!("{} {}", ">".green(), command_to_run.blue().bold());
+    
     let (shell, flag) = if cfg!(target_os = "windows") {
         ("cmd", "/C")
     } else {
@@ -34,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Command::new(shell)
         .arg(flag)
-        .arg(commands[command].clone())
+        .arg(command_to_run)
         .status()?;
 
     Ok(())
