@@ -5,7 +5,7 @@
 </p>
 
 `tony` is a small CLI tool inspired by `make` and similar task runners.
-It reads commands from `Tonyfile.json` and runs them by alias.
+It reads commands from `tonyfile.toml` and runs them by alias.
 
 ## Why
 
@@ -51,72 +51,28 @@ xattr -d com.apple.quarantine /usr/local/bin/tony
 
 ## Usage
 
-`tony` looks for `Tonyfile.json` in the current working directory.
+`tony` looks for `tonyfile.toml` in the current working directory.
 
 ```sh
 tony <command>
 ```
 
-Example `Tonyfile.json`:
+Example `tonyfile.toml`:
 
-```json
-{
-  "docker-build": "docker build -t my-app .",
-  "frontend-build": "vite build",
-  "test": "go test ./...",
-  "lint": "golangci-lint run",
-  "dev": "docker compose up"
-}
+```toml
+build = "docker build -t my-app ."
+run = "cargo run pwd --quiet"
+lint = "golangci-lint run"
+dev = "docker compose up"
 ```
 
 Then run:
 
 ```sh
-tony docker-build
-tony frontend-build
-tony test
+tony build
+tony run
 ```
 
-## Run locally
-
-If you built the binary yourself and it is still in the current directory:
-
-```sh
-./tony <command>
-```
-
-## Output
-
-Before running a command, `tony` prints it with simple color styling:
-
-```sh
-tony frontend-build
-> vite build
-vite v7.0.0 building for production...
-...
-```
-
-The command itself is highlighted, while the actual command output is printed as-is.
-
-## How it works
-
-1. `tony` reads `Tonyfile.json`
-2. finds the requested command by name
-3. runs it through `sh -c`
-4. prints the command output to the terminal
-
-## Current limitations
-
-- `Tonyfile.json` must exist in the current working directory
-- commands are executed through `sh -c`
-- the current release builds target macOS and Linux
-- the config format is currently just `map[string]string`
-
-## Build from source
-
-```sh
-go build -o tony
-```
 
 ## License
 
