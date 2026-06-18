@@ -1,9 +1,8 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader};
 use std::process::Command;
 use clap::Parser;
 use colored::Colorize;
+use anyhow::{Context, Result};
 
 #[derive(Parser)]
 #[command(name = "tony", about = "A simple task runner", version)]
@@ -11,20 +10,18 @@ struct Cli {
     command: String,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let file = File::open("tonyfile.json")?;
-    let reader = BufReader::new(file);
-    let commands: HashMap<String, String> = serde_json::from_reader(reader)?;
+    let file = std::fs::read_to_string("tonyfile.toml")
+        .context("Failed to read 'tonyfile.toml'")?;
 
-    let command_to_run = match commands.get(&cli.command) {
-        Some(cmd) => cmd,
-        None => {
-            eprintln!("Command not found: '{}'", cli.command);
-            std::process::exit(1);
-        }
-    };
+    let commands: HashMap<String, String> = toml::from_str(&file)
+        .context("Invalid TOML format in 'tonyfile.toml'")?;
+
+    let command_to_run = commands
+        .get(&cli.command)
+        .ok_or_else(|| anyhow::anyhow!("Command not found: '{}'", cli.command))?;
 
     println!("{} {}", ">".green(), command_to_run.blue().bold());
 
@@ -34,10 +31,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("sh", "-c")
     };
 
-    Command::new(shell)
+    let status = Command::new(shell)
         .arg(flag)
         .arg(command_to_run)
-        .status()?;
+        .stdin(std::process::Stdio::inherit())
+        .stdout(std::process::Stdio::inherit())
+        .stderr(std::process::Stdio::inherit())
+        .status()
+        .context("Failed to execute command")?;
+
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
+    }
 
     Ok(())
 }
