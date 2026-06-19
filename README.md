@@ -1,7 +1,7 @@
 # tony
 
 <p align="center">
-<img src="tony.webp" alt="tony" width="320">
+<img src="_tony_.webp" alt="tony" width="320">
 </p>
 
 `tony` is a small CLI tool inspired by `make` and similar task runners.
