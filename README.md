@@ -1,7 +1,7 @@
 # tony
 
 <p align="center">
-<img src="tony.webp" alt="tony" width="720">
+<img src="tony.webp" alt="tony" width="320">
 </p>
 
 `tony` is a small CLI tool inspired by `make` and similar task runners.
@@ -72,8 +72,3 @@ Then run:
 tony build
 tony run
 ```
-
-
-## License
-
-MIT
