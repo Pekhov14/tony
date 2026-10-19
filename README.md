@@ -1,25 +1,36 @@
-# tony
+# Tony
 
 <p align="center">
 <img src="_tony_.webp" alt="tony" width="320">
 </p>
 
-`tony` is a small CLI tool inspired by `make` and similar task runners.
-It reads commands from `tonyfile.toml` and runs them by alias.
+`tony` is a blazing-fast, developer-friendly task runner written in Rust. Inspired by `make`, it helps you organize and run project commands with clean aliases and zero friction.
 
-## Why
+---
 
-Instead of typing long commands like:
+## Why `tony`?
+
+Instead of memorizing and typing long, cumbersome commands:
 
 ```sh
-docker build -t my-app .
-vite build
-go test ./...
+docker build -t my-app . && docker push my-app:latest
 ```
 
-you can define short aliases in `Tonyfile.json` and run them with `tony`.
+You can define short, memorable aliases in a tonyfile.toml:
 
-## Install from GitHub Releases
+```toml
+[tasks]
+build = "docker build -t my-app ."
+push  = "docker push my-app:latest"
+```
+
+And run them instantly:
+```sh
+tony build
+```
+---
+
+### Install from GitHub Releases
 
 1. Download the archive for your platform from the [releases page](https://github.com/Pekhov14/tony/releases).
 2. Extract it:
@@ -34,12 +45,6 @@ tar -xzf tony_<version>_<platform>.tar.gz
 sudo mv tony /usr/local/bin/tony
 ```
 
-Then you can run:
-
-```sh
-tony <command>
-```
-
 ### macOS note
 
 On macOS, the binary may be blocked on first launch because it is not code-signed yet.
@@ -48,27 +53,27 @@ If that happens, remove the quarantine attribute and try again:
 ```sh
 xattr -d com.apple.quarantine /usr/local/bin/tony
 ```
-
 ## Usage
 
-`tony` looks for `tonyfile.toml` in the current working directory.
+`tony` automatically looks for `tonyfile.toml` in the current working directory.
 
 ```sh
-tony <command>
+tony <command>         # Run a specific task
+tony <command> --quiet # Run quietly (suppress command echoing)
+tony <command> -q      # Run quietly with short syntax (suppress command echoing)
+```
+
+## Uninstallation
+If you ever need to remove tony:
+
+```bash
+sudo rm /usr/local/bin/tony
 ```
 
 Example `tonyfile.toml`:
 
 ```toml
+[tasks]
 build = "docker build -t my-app ."
-run = "cargo run pwd --quiet"
-lint = "golangci-lint run"
-dev = "docker compose up"
-```
-
-Then run:
-
-```sh
-tony build
-tony run
+push  = "docker push my-app:latest"
 ```
