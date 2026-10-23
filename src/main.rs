@@ -6,18 +6,28 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 
 #[derive(Parser)]
-#[command(name = "tony", about = "A simple task runner", version)]
+#[command(name = "tony", about = "Blazing-fast, developer-friendly task runner", version)]
 struct Cli {
     command: String,
+
+    #[arg(short, long, help = "Run quietly without printing the command")]
+    quiet: bool,
 }
 #[derive(Debug, Deserialize)]
 struct Tonyfile {
     tasks: HashMap<String, Task>,
 }
+
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum Task {
     Simple(String),
+    Advanced(AdvancedTask),
+}
+
+#[derive(Debug, Deserialize)]
+struct AdvancedTask {
+    info: Option<String>,
 }
 
 fn main() -> Result<()> {
@@ -37,9 +47,14 @@ fn main() -> Result<()> {
         Task::Simple(cmd) => {
             cmd
         }
+        Task::Advanced(adv) => {
+            return Err(anyhow::anyhow!("Advanced task not found '{}'", adv.info))
+        }
     };
 
-    println!("{} {}", ">".green(), command_to_run.blue().bold() );
+    if !cli.quiet {
+        println!("{} {}", ">".green(), command_to_run.blue().bold() );
+    }
 
     let (shell, flag) = if cfg!(target_os = "windows") {
         ("cmd", "/C")
