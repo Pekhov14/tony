@@ -57,6 +57,22 @@ xattr -d com.apple.quarantine /usr/local/bin/tony
 
 `tony` automatically looks for `tonyfile.toml` in the current working directory.
 
+If you need split commands with other files use flag `--file or -f`
+- tonyfile.toml
+- tonyfile.dev.toml
+- tonyfile.prod.toml
+
+```bash
+tony build                        # Use default file tonyfile.toml
+tony -f tonyfile.dev.toml build   # Use file tonyfile.dev.toml
+tony -f tonyfile.dev.toml build   # Use file tonyfile.dev.toml
+```
+for short syntax you can write only second word between dots.
+
+```bash
+tony -f dev build # Use file tonyfile.dev.toml
+```
+
 ```sh
 tony <command>         # Run a specific task
 tony <command> --quiet # Run quietly (suppress command echoing)
