@@ -12,6 +12,9 @@ struct Cli {
 
     #[arg(short, long, help = "Run quietly without printing the command")]
     quiet: bool,
+
+    #[arg(short, long, help = "Select file for execution commands", default_value = "tonyfile.toml")]
+    file: String,
 }
 #[derive(Debug, Deserialize)]
 struct Tonyfile {
@@ -30,10 +33,19 @@ struct AdvancedTask {
     info: Option<String>,
 }
 
+const MIN_NUMBER_PARTS_IN_FILENAME : usize = 1;
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    let file_name_words = cli.file.split('.').count();
 
-    let file_context = std::fs::read_to_string("tonyfile.toml")
+    let file_name = if file_name_words == MIN_NUMBER_PARTS_IN_FILENAME {
+        format!("tonyfile.{}.toml", cli.file)
+    } else {
+        cli.file
+    };
+
+    let file_context = std::fs::read_to_string(file_name)
         .context("Failed to read 'tonyfile.toml'")?;
 
     let tonyfile: Tonyfile = toml::from_str(&file_context)
@@ -48,7 +60,7 @@ fn main() -> Result<()> {
             cmd
         }
         Task::Advanced(adv) => {
-            return Err(anyhow::anyhow!("Advanced task not found '{}'", adv.info))
+            return Err(anyhow::anyhow!("Advanced task not found '{:?}'", adv.info))
         }
     };
 
